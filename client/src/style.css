@@ -1,0 +1,288 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, 'Segoe UI', sans-serif;
+  font-size: 14px;
+}
+
+/* Carte plein écran */
+#map {
+  position: fixed;
+  inset: 0;
+}
+
+/* Panneaux superposés */
+.panel {
+  position: fixed;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.93);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  max-width: 280px;
+}
+
+/* Titre + recherche — haut gauche */
+#title-panel {
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#title-panel h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.3px;
+}
+
+#title-panel p {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Recherche */
+#search-wrapper {
+  position: relative;
+  margin-top: 4px;
+}
+
+#search-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+#search-input:focus {
+  border-color: #3b82f6;
+}
+
+#search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  list-style: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  overflow: hidden;
+}
+
+#search-results.hidden {
+  display: none;
+}
+
+#search-results li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #222;
+  transition: background 0.15s;
+}
+
+#search-results li:hover {
+  background: #f0f4ff;
+}
+
+/* Légende — bas gauche */
+#legend-panel {
+  bottom: 32px;
+  left: 12px;
+  min-width: 200px;
+}
+
+.legend-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-gradient {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #1a9641, #a6d96a, #ffffbf, #fdae61, #d7191c);
+}
+
+.legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.legend-na {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #555;
+}
+
+.legend-na-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 12px;
+  border-radius: 3px;
+  background: #aaaaaa;
+  flex-shrink: 0;
+}
+
+/* Filtre — bas droite (au-dessus du contrôle d'échelle) */
+#filter-panel {
+  bottom: 56px;
+  right: 12px;
+  min-width: 220px;
+}
+
+#filter-panel label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#filter-slider {
+  flex: 1;
+  accent-color: #d7191c;
+  cursor: pointer;
+}
+
+#filter-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Toggle praticiens */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.toggle-row input[type="checkbox"] {
+  accent-color: #2563eb;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-row label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-bottom: 0;
+}
+
+/* Popup médecin */
+.popup-medecin {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popup-medecin .popup-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #2563eb;
+  background: #eff6ff;
+  border-radius: 4px;
+  padding: 2px 6px;
+  width: fit-content;
+}
+
+.popup-medecin-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.popup-medecin-item {
+  padding: 5px 0;
+}
+
+hr.popup-divider {
+  border: none;
+  border-top: 1px solid #e8e8e8;
+  margin: 0;
+}
+
+.popup-adresse {
+  padding-top: 6px;
+  border-top: 1px solid #e8e8e8;
+}
+
+/* Popup MapLibre */
+.maplibregl-popup-content {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-family: system-ui, 'Segoe UI', sans-serif;
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popup-time {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.popup-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+
+.popup-detail {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}

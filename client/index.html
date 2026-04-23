@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MedMap — Accessibilité médicale en Essonne</title>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="panel" id="title-panel">
+      <h1>MedMap</h1>
+      <p>Accessibilité aux médecins généralistes · Essonne (91)</p>
+      <div id="search-wrapper">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Rechercher une commune…"
+          autocomplete="off"
+        />
+        <ul id="search-results" class="hidden"></ul>
+      </div>
+    </div>
+
+    <div class="panel" id="legend-panel">
+      <div class="legend-title">Temps de trajet</div>
+      <div class="legend-gradient"></div>
+      <div class="legend-labels">
+        <span>0 min</span>
+        <span>15 min</span>
+        <span>30 min</span>
+        <span>45+ min</span>
+      </div>
+      <div class="legend-na">
+        <span class="legend-na-swatch"></span>Injoignable
+      </div>
+    </div>
+
+    <div class="panel" id="filter-panel">
+      <label for="filter-slider">Afficher uniquement les zones</label>
+      <div class="filter-row">
+        <input id="filter-slider" type="range" min="0" max="60" step="5" value="0" />
+        <span id="filter-value">Toutes</span>
+      </div>
+      <div class="toggle-row">
+        <input type="checkbox" id="toggle-praticiens" checked />
+        <label for="toggle-praticiens">Afficher les médecins</label>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

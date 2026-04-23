@@ -1,2 +1,5 @@
-data
+data 
 .venv
+*.qgz
+CLAUDE.md
+.claude
