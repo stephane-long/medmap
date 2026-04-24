@@ -81,7 +81,7 @@ if __name__ == "__main__":
     boundary = get_essonne_boundary()
     # Résolution 8 = hexagones d'environ 0.7 km2 de surface, soit des milliers de points pour le 91
     # Résolution 9 = hexagones d'environ 0.1 km2
-    grid = fill_with_h3(boundary, resolution=8)
+    grid = fill_with_h3(boundary, resolution=9)
 
     out_file = "data/grille_essonne.gpkg"
     grid.to_file(out_file, driver="GPKG")

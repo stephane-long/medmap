@@ -8,9 +8,17 @@
   <body>
     <div id="map"></div>
 
+    <!-- Titre — haut gauche -->
     <div class="panel" id="title-panel">
-      <h1>MedMap</h1>
-      <p>Accessibilité aux médecins généralistes · Essonne (91)</p>
+      <h1>Combien de temps faut-il pour rejoindre le généraliste le plus proche&nbsp;?</h1>
+      <p>Cliquez sur une zone pour connaître le temps de trajet en voiture.</p>
+      <p class="coverage">Couverture actuelle : Essonne (91)<br>Source : répertoire RPPS (Agence du numérique en santé)</p>
+    </div>
+
+    <!-- Contrôles — bas gauche -->
+    <div class="panel" id="control-panel">
+
+      <!-- Recherche -->
       <div id="search-wrapper">
         <input
           id="search-input"
@@ -20,9 +28,10 @@
         />
         <ul id="search-results" class="hidden"></ul>
       </div>
-    </div>
 
-    <div class="panel" id="legend-panel">
+      <hr class="panel-divider" />
+
+      <!-- Légende -->
       <div class="legend-title">Temps de trajet</div>
       <div class="legend-gradient"></div>
       <div class="legend-labels">
@@ -31,13 +40,19 @@
         <span>30 min</span>
         <span>45+ min</span>
       </div>
-      <div class="legend-na">
-        <span class="legend-na-swatch"></span>Injoignable
-      </div>
-    </div>
 
-    <div class="panel" id="filter-panel">
-      <label for="filter-slider">Afficher uniquement les zones</label>
+      <div class="legend-doctors">
+        <div class="legend-doctors-dots">
+          <span class="legend-dot legend-dot-sm"></span>
+          <span class="legend-dot legend-dot-lg"></span>
+        </div>
+        <span>Médecin(s) — taille selon le nombre</span>
+      </div>
+
+      <hr class="panel-divider" />
+
+      <!-- Filtre -->
+      <label class="section-label" for="filter-slider">Filtrer les zones</label>
       <div class="filter-row">
         <input id="filter-slider" type="range" min="0" max="60" step="5" value="0" />
         <span id="filter-value">Toutes</span>
@@ -46,6 +61,7 @@
         <input type="checkbox" id="toggle-praticiens" checked />
         <label for="toggle-praticiens">Afficher les médecins</label>
       </div>
+
     </div>
 
     <script type="module" src="/src/main.js"></script>

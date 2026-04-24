@@ -1,0 +1,20 @@
+# Compression gzip
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE application/geo+json
+  AddOutputFilterByType DEFLATE application/json
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE text/css
+</IfModule>
+
+# Type MIME correct pour les fichiers GeoJSON
+AddType application/geo+json .geojson
+
+# Cache navigateur
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # GeoJSON : 1 jour (données mises à jour occasionnellement)
+  ExpiresByType application/geo+json "access plus 1 day"
+  # Assets Vite : 1 an (noms de fichiers versionnés, jamais réutilisés)
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+</IfModule>

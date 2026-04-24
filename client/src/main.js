@@ -127,11 +127,11 @@ function initPopups() {
     if (hexFeatures.length) {
       const p = hexFeatures[0].properties;
       const temps = p.temps_trajet_min != null
-        ? `${Math.round(p.temps_trajet_min)} min`
+        ? `${Math.round(p.temps_trajet_min)} min en voiture`
         : 'Injoignable';
 
       const medecins = JSON.parse(p.praticiens_json || '[]');
-      const badge = medecins.length > 1 ? `${medecins.length} médecins` : 'Médecin';
+      const badge = medecins.length > 1 ? `${medecins.length} médecins les plus proches` : 'Médecin le plus proche';
       const items = medecins.map((m) => `
         <div class="popup-medecin-item">
           <div class="popup-name">${m.prenom} ${m.nom}</div>
