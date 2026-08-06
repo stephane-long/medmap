@@ -39,16 +39,23 @@ def get_travel_time(src_lon, src_lat, dest_lons, dest_lats):
 
 
 def _save_checkpoint(done):
-    rows = [{"h3_index": h, "temps_trajet_min": v["temps_trajet_min"], "praticien_idx": v["praticien_idx"]} for h, v in done.items()]
+    rows = [
+        {
+            "h3_index": h,
+            "temps_trajet_min": v["temps_trajet_min"],
+            "praticien_idx": v["praticien_idx"],
+        }
+        for h, v in done.items()
+    ]
     pd.DataFrame(rows).to_csv(CHECKPOINT_FILE, index=False)
 
 
 def compute_accessibility():
     print("Chargement de la grille et des praticiens...")
-    grid = gpd.read_file("data/grille_essonne.gpkg")
+    grid = gpd.read_file("data/grille_creuse.gpkg")
 
     try:
-        praticiens = pd.read_csv("data/generalistes_ville_idf_geocoded.csv", sep=",")
+        praticiens = pd.read_csv("data/generalistes_ville_creuse_geocoded.csv", sep=",")
     except FileNotFoundError:
         print(
             "Erreur: Le fichier des praticiens n'existe pas. Lancez d'abord 01_extract_praticiens.py"
@@ -73,8 +80,12 @@ def compute_accessibility():
         df_ckpt = pd.read_csv(CHECKPOINT_FILE)
         for _, row in df_ckpt.iterrows():
             done[row["h3_index"]] = {
-                "temps_trajet_min": row["temps_trajet_min"] if pd.notna(row["temps_trajet_min"]) else None,
-                "praticien_idx": int(row["praticien_idx"]) if pd.notna(row["praticien_idx"]) else None,
+                "temps_trajet_min": row["temps_trajet_min"]
+                if pd.notna(row["temps_trajet_min"])
+                else None,
+                "praticien_idx": int(row["praticien_idx"])
+                if pd.notna(row["praticien_idx"])
+                else None,
             }
         print(f"Checkpoint détecté : {len(done)} hexagones déjà calculés.")
 
@@ -103,7 +114,9 @@ def compute_accessibility():
         t_time, local_idx = get_travel_time(
             src_lon, src_lat, dest_lons[closest_indices], dest_lats[closest_indices]
         )
-        original_idx = int(closest_indices[local_idx]) if local_idx is not None else None
+        original_idx = (
+            int(closest_indices[local_idx]) if local_idx is not None else None
+        )
         done[h3_idx] = {"temps_trajet_min": t_time, "praticien_idx": original_idx}
         computed += 1
 
@@ -113,10 +126,14 @@ def compute_accessibility():
 
     # Sauvegarde finale
     _save_checkpoint(done)
-    grid["temps_trajet_min"] = grid["h3_index"].map(lambda h: done.get(h, {}).get("temps_trajet_min"))
+    grid["temps_trajet_min"] = grid["h3_index"].map(
+        lambda h: done.get(h, {}).get("temps_trajet_min")
+    )
 
     # Enrichissement avec les infos du praticien le plus proche
-    praticien_idx_series = grid["h3_index"].map(lambda h: done.get(h, {}).get("praticien_idx"))
+    praticien_idx_series = grid["h3_index"].map(
+        lambda h: done.get(h, {}).get("praticien_idx")
+    )
     cols = {
         "praticien_nom": "Nom d'exercice",
         "praticien_prenom": "Prénom d'exercice",
@@ -128,7 +145,7 @@ def compute_accessibility():
             lambda i: praticiens.iloc[int(i)][col_in] if pd.notna(i) else None
         )
 
-    out_file = "data/grille_accessibilite_finale.gpkg"
+    out_file = "data/grille_accessibilite_creuse.gpkg"
     grid.to_file(out_file, driver="GPKG")
     print(f"Calcul terminé ! Matrice sauvegardée: {out_file}")
     os.remove(CHECKPOINT_FILE)

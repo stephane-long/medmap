@@ -10,8 +10,8 @@ const GEOCODE_URL      = 'https://api-adresse.data.gouv.fr/search/';
 const map = new maplibregl.Map({
   container: 'map',
   style: MAP_STYLE,
-  center: [2.44, 48.58],
-  zoom: 10,
+  center: [1.87, 46.17],
+  zoom: 9,
 });
 
 map.addControl(new maplibregl.NavigationControl(), 'top-right');
@@ -41,10 +41,10 @@ map.on('load', async () => {
         [
           'interpolate', ['linear'], ['get', 'temps_trajet_min'],
           0,  '#1a9641',
-          10, '#a6d96a',
-          20, '#ffffbf',
-          30, '#fdae61',
-          45, '#d7191c',
+          5, '#a6d96a',
+          10, '#ffffbf',
+          20, '#fdae61',
+          30, '#d7191c',
         ],
       ],
       'fill-opacity': 0.75,
@@ -131,7 +131,7 @@ function initPopups() {
         : 'Injoignable';
 
       const medecins = JSON.parse(p.praticiens_json || '[]');
-      const badge = medecins.length > 1 ? `${medecins.length} médecins les plus proches` : 'Médecin le plus proche';
+      const badge = medecins.length > 1 ? `pour rejoindre les ${medecins.length} médecins les plus proches` : 'pour rejoindre le médecin le plus proche';
       const items = medecins.map((m) => `
         <div class="popup-medecin-item">
           <div class="popup-name">${m.prenom} ${m.nom}</div>

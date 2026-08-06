@@ -6,22 +6,22 @@ import requests
 from shapely.geometry import Point, Polygon
 
 
-def get_essonne_boundary():
-    """Récupère le polygone du département de l'Essonne (91) en fusionnant ses communes."""
-    print("Téléchargement des frontières de l'Essonne...")
+def get_area_boundary():
+    """Récupère le polygone du département désiré (Essonne (91) ou CReuse (23)) en fusionnant ses communes."""
+    print("Téléchargement des frontières de la zone...")
     # L'API ne renvoie pas le contour au niveau département, mais elle le fait au niveau commune !
-    # On télécharge donc toutes les communes du 91 au format GeoJSON avec leurs contours.
-    url = "https://geo.api.gouv.fr/departements/91/communes?format=geojson&geometry=contour"
+    # On télécharge donc toutes les communes du 91 ou 23 (Creuse) au format GeoJSON avec leurs contours.
+    url = "https://geo.api.gouv.fr/departements/23/communes?format=geojson&geometry=contour"
 
     # GeoPandas sait lire un GeoJSON directement depuis une URL
     gdf_communes = gpd.read_file(url)
 
     # On fusionne (dissolve) toutes les communes pour obtenir un seul gros polygone (le département)
     # On crée une fausse colonne pour que dissolve() rassemble tout en une seule ligne
-    gdf_communes["dep"] = "91"
-    gdf_essonne = gdf_communes.dissolve(by="dep")
+    gdf_communes["dep"] = "23"
+    gdf_area = gdf_communes.dissolve(by="dep")
 
-    return gdf_essonne
+    return gdf_area
 
 
 def fill_with_h3(gdf_boundary, resolution=8):
@@ -78,11 +78,11 @@ def fill_with_h3(gdf_boundary, resolution=8):
 
 
 if __name__ == "__main__":
-    boundary = get_essonne_boundary()
+    boundary = get_area_boundary()
     # Résolution 8 = hexagones d'environ 0.7 km2 de surface, soit des milliers de points pour le 91
     # Résolution 9 = hexagones d'environ 0.1 km2
-    grid = fill_with_h3(boundary, resolution=9)
+    grid = fill_with_h3(boundary, resolution=8)
 
-    out_file = "data/grille_essonne.gpkg"
+    out_file = "data/grille_creuse.gpkg"
     grid.to_file(out_file, driver="GPKG")
     print(f"Grille sauvegardée dans {out_file}")

@@ -29,7 +29,7 @@ def geocode_adresse(adresse_complete):
 
 
 def process_praticiens(file_path):
-    out_file = "data/generalistes_ville_idf_geocoded.csv"
+    out_file = "data/generalistes_ville_creuse_geocoded.csv"
 
     # Charger la base brute
     df = pd.read_csv(file_path, sep=",", encoding="utf-8")
@@ -77,4 +77,4 @@ def process_praticiens(file_path):
 
 
 if __name__ == "__main__":
-    process_praticiens("data/generalistes_ville_idf.csv")
+    process_praticiens("data/generalistes_ville_creuse.csv")
