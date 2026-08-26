@@ -95,6 +95,11 @@ map.on('load', async () => {
 function initPopups() {
   const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '280px' });
 
+  // En mobile le popup est rendu en feuille basse : il occuperait la même place
+  // que le panneau de contrôle, qu'on escamote donc le temps de la consultation.
+  popup.on('open',  () => document.body.classList.add('popup-open'));
+  popup.on('close', () => document.body.classList.remove('popup-open'));
+
   map.on('click', (e) => {
     // Priorité 1 : praticien (couche supérieure)
     const pratFeatures = map.queryRenderedFeatures(e.point, { layers: ['praticiens-circle'] });
@@ -109,6 +114,7 @@ function initPopups() {
         </div>
       `).join('<hr class="popup-divider">');
 
+      collapseSheet();
       popup
         .setLngLat(pratFeatures[0].geometry.coordinates)
         .setHTML(`
@@ -139,6 +145,7 @@ function initPopups() {
         </div>
       `).join('<hr class="popup-divider">');
 
+      collapseSheet();
       popup
         .setLngLat(e.lngLat)
         .setHTML(`
@@ -219,8 +226,12 @@ function renderResults(features) {
     const li = document.createElement('li');
     li.textContent = `${f.properties.city} (${f.properties.postcode})`;
     li.addEventListener('click', () => {
-      map.flyTo({ center: f.geometry.coordinates, zoom: 13 });
+      // En mobile, on décale le centrage pour que la commune ne finisse pas
+      // sous le sheet (bas) ou sous la barre de recherche (haut).
+      const padding = isMobile() ? { top: 70, bottom: 140, left: 0, right: 0 } : undefined;
+      map.flyTo({ center: f.geometry.coordinates, zoom: 13, padding });
       searchInput.value = li.textContent;
+      searchInput.blur();
       hide();
     });
     searchResults.appendChild(li);
@@ -232,3 +243,80 @@ function hide() { searchResults.classList.add('hidden'); }
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#search-wrapper')) hide();
 });
+
+// ---------------------------------------------------------------------------
+// Mobile — barre de recherche en haut, panneau de contrôle en bottom sheet
+// ---------------------------------------------------------------------------
+const MOBILE_QUERY = '(max-width: 768px)';
+const mqMobile     = window.matchMedia(MOBILE_QUERY);
+const isMobile     = () => mqMobile.matches;
+
+const topbar        = document.getElementById('mobile-topbar');
+const controlPanel  = document.getElementById('control-panel');
+const searchWrapper = document.getElementById('search-wrapper');
+const searchDivider = document.getElementById('search-divider');
+const sheetHandle   = document.getElementById('sheet-handle');
+const titlePanel    = document.getElementById('title-panel');
+const infoBackdrop  = document.getElementById('info-backdrop');
+
+/**
+ * Le champ de recherche est en bas du panneau sur desktop, mais doit passer
+ * en haut de l'écran sur mobile — sinon le clavier virtuel le recouvre.
+ * On déplace le nœud plutôt que de dupliquer le markup ; ça n'arrive qu'au
+ * franchissement du breakpoint (rotation, redimensionnement).
+ */
+function syncSearchPlacement() {
+  if (isMobile()) {
+    if (searchWrapper.parentElement !== topbar) topbar.insertBefore(searchWrapper, topbar.firstChild);
+  } else if (searchWrapper.parentElement !== controlPanel) {
+    controlPanel.insertBefore(searchWrapper, searchDivider);
+  }
+}
+
+function setSheetExpanded(expanded) {
+  controlPanel.classList.toggle('is-expanded', expanded);
+  sheetHandle.setAttribute('aria-expanded', String(expanded));
+  sheetHandle.setAttribute('aria-label', expanded ? 'Replier les filtres' : 'Déplier les filtres');
+}
+
+function collapseSheet() {
+  if (isMobile()) setSheetExpanded(false);
+}
+
+function initSheet() {
+  sheetHandle.addEventListener('click', () => {
+    setSheetExpanded(!controlPanel.classList.contains('is-expanded'));
+  });
+
+  // Drag vertical sur la poignée : au-delà de 30px, on déplie/replie.
+  let startY = null;
+  sheetHandle.addEventListener('pointerdown', (e) => { startY = e.clientY; });
+  sheetHandle.addEventListener('pointermove', (e) => {
+    if (startY === null) return;
+    const delta = e.clientY - startY;
+    if (Math.abs(delta) < 30) return;
+    setSheetExpanded(delta < 0);
+    startY = null;
+  });
+  const endDrag = () => { startY = null; };
+  sheetHandle.addEventListener('pointerup', endDrag);
+  sheetHandle.addEventListener('pointercancel', endDrag);
+}
+
+function initInfoPanel() {
+  const open  = () => { titlePanel.classList.add('is-open');   infoBackdrop.classList.add('is-open'); };
+  const close = () => { titlePanel.classList.remove('is-open'); infoBackdrop.classList.remove('is-open'); };
+
+  document.getElementById('info-btn').addEventListener('click', open);
+  document.getElementById('info-close').addEventListener('click', close);
+  infoBackdrop.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+  // Repasser en desktop doit rendre le panneau à son état normal
+  mqMobile.addEventListener('change', close);
+}
+
+syncSearchPlacement();
+mqMobile.addEventListener('change', syncSearchPlacement);
+initSheet();
+initInfoPanel();

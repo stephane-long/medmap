@@ -87,12 +87,27 @@ MapLibre GL JS s'occupe de tout ce qui est géospatial :
 
 En résumé : MapLibre s'occupe du rendu géospatial, le JS natif gère l'UI autour (panneaux, recherche, filtre), Vite empaquette le tout pour la mise en prod.
 
+### Adaptation mobile
+
+Sous 768px, la mise en page bascule en mode « application carto mobile ». Tout tient dans un unique bloc `@media (max-width: 768px)` en fin de `style.css` : **le rendu desktop n'est pas affecté**.
+
+- Le panneau de contrôle devient un **bottom sheet** ancré en bas, replié par défaut (légende seule visible), dépliable au tap ou au drag vertical sur la poignée (seuil : 30px).
+- La **barre de recherche remonte en haut de l'écran**, à côté d'un bouton ⓘ qui ouvre le titre et les sources en modale.
+- Les **popups** s'affichent en feuille basse plein largeur plutôt qu'en bulle ancrée.
+- Les boutons zoom +/− sont masqués (le pinch suffit) ; l'attribution OSM et l'échelle sont remontées au-dessus du sheet replié.
+
+Trois pièges CSS rencontrés, à connaître avant de toucher à cette partie :
+
+1. **`backdrop-filter` crée un containing block**, exactement comme `transform`. Un `position: fixed` posé sur un descendant de `.panel` se positionne donc par rapport au panneau, pas au viewport. C'est pour ça que le champ de recherche est **déplacé dans le DOM** par `syncSearchPlacement()` (main.js) au franchissement du breakpoint, au lieu d'être simplement repositionné en CSS. Le sheet mobile utilise d'ailleurs un fond opaque avec `backdrop-filter: none`.
+2. **`#map` est en `position: fixed`, ce qui crée aussi un contexte d'empilement.** Les popups MapLibre étant insérés *dans* `#map`, aucun `z-index` ne peut les faire passer au-dessus du panneau de contrôle, qui est un frère de `#map`. D'où la classe `body.popup-open` qui escamote le sheet (`translateY(105%)`) tant qu'un popup est ouvert.
+3. Un `font-size` inférieur à 16px sur un `<input>` déclenche un **zoom automatique sur iOS** au focus — le champ de recherche est donc à 16px en mobile.
+
 ## 9 Points de vigilance en cas de changement de zone
 
 Certains éléments restent codés en dur et ne sont **pas** mis à jour automatiquement par le pipeline Python — à vérifier manuellement à chaque changement de département :
 
-- `client/index.html` : titre de la page (`<title>`) et texte "Couverture actuelle : ..." dans le panneau — mentionnent encore l'Essonne.
-- `client/src/main.js` : centre de la carte au chargement (`center: [2.44, 48.58]`, coordonnées Essonne) — à recentrer sur la nouvelle zone.
+- `client/index.html` : titre de la page (`<title>`) et texte "Couverture actuelle : ..." dans le panneau — actuellement calés sur la Creuse (23).
+- `client/src/main.js` : centre de la carte au chargement (`center: [1.87, 46.17]`, coordonnées Creuse) — à recentrer sur la nouvelle zone.
 - `client/src/main.js` : `GEOJSON_URL` pointe vers `/grille_accessibilite.geojson` — cohérent avec le renommage fait à la copie (étape 7), mais à garder synchronisé si le nom de fichier change.
 - Scripts `01_extract_praticiens.py`, `02_generate_grid.py`, `05_export_praticiens.py` : chemins de fichiers et filtres géographiques (code département) en dur, sans argument en ligne de commande — voir remarques aux étapes 2, 3 et 6.
 

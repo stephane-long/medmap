@@ -116,6 +116,21 @@ body {
   gap: 10px;
 }
 
+/* Sur desktop, le conteneur repliable est transparent : ses enfants
+   participent directement au flex de #control-panel (gap préservé). */
+#sheet-details {
+  display: contents;
+}
+
+/* Éléments réservés au mobile — masqués par défaut */
+#mobile-topbar,
+#info-btn,
+#info-close,
+#info-backdrop,
+#sheet-handle {
+  display: none;
+}
+
 .panel-divider {
   border: none;
   border-top: 1px solid #e5e5e5;
@@ -326,4 +341,275 @@ hr.popup-divider {
   font-size: 12px;
   color: #666;
   line-height: 1.4;
+}
+
+/* ==========================================================================
+   MOBILE — bottom sheet repliable + barre de recherche en haut
+   Sous 768px seulement : le rendu desktop ci-dessus n'est pas affecté.
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* --- Barre du haut : recherche (déplacée par main.js) + bouton info --- */
+  #mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    z-index: 15;
+    top: calc(10px + env(safe-area-inset-top));
+    left: 10px;
+    right: 10px;
+  }
+
+  #mobile-topbar #search-wrapper {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #mobile-topbar #search-input {
+    height: 44px;
+    font-size: 16px; /* < 16px déclenche un zoom automatique sur iOS */
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  }
+
+  #search-results li {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  #info-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 700;
+    color: #1a1a2e;
+    cursor: pointer;
+  }
+
+  /* --- Panneau titre : modale au tap sur ⓘ --- */
+  #title-panel {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%) scale(0.96);
+    width: calc(100vw - 40px);
+    max-width: 380px;
+    padding: 20px;
+    z-index: 41;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  }
+
+  #title-panel.is-open {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  #title-panel h1 {
+    font-size: 18px;
+    padding-right: 28px;
+  }
+
+  #title-panel p {
+    font-size: 14px;
+  }
+
+  #title-panel .coverage {
+    font-size: 12px;
+  }
+
+  #info-close {
+    display: block;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    font-size: 26px;
+    line-height: 1;
+    color: #888;
+    cursor: pointer;
+  }
+
+  #info-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(0, 0, 0, 0.35);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease, visibility 0.2s;
+  }
+
+  #info-backdrop.is-open {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* --- Bottom sheet --- */
+  #control-panel {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    z-index: 20;
+    border-radius: 16px 16px 0 0;
+    padding: 0 16px calc(14px + env(safe-area-inset-bottom));
+    /* Fond opaque : backdrop-filter créerait un containing block gênant
+       et un sheet translucide se lit mal par-dessus la grille colorée. */
+    background: #fff;
+    backdrop-filter: none;
+    box-shadow: 0 -3px 16px rgba(0, 0, 0, 0.16);
+  }
+
+  /* #map est en position:fixed, donc crée un contexte d'empilement : le popup
+     qu'il contient ne peut PAS passer au-dessus du sheet, quel que soit son
+     z-index. On escamote donc le sheet tant qu'un popup est ouvert. */
+  #control-panel {
+    transition: transform 0.25s ease;
+  }
+
+  body.popup-open #control-panel {
+    transform: translateY(105%);
+  }
+
+  #sheet-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 30px;
+    margin-bottom: -4px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  .sheet-handle-bar {
+    width: 42px;
+    height: 4px;
+    border-radius: 2px;
+    background: #cfcfcf;
+  }
+
+  /* La recherche vit dans la topbar en mobile : son séparateur n'a plus lieu d'être */
+  #search-divider {
+    display: none;
+  }
+
+  /* --- Partie repliable --- */
+  #sheet-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    max-height: 0;
+    margin-top: -10px; /* neutralise le gap du parent quand replié */
+    opacity: 0;
+    transition: max-height 0.28s ease, opacity 0.2s ease, margin-top 0.28s ease;
+  }
+
+  #control-panel.is-expanded #sheet-details {
+    max-height: 50vh;
+    margin-top: 0;
+    opacity: 1;
+  }
+
+  /* --- Cibles tactiles --- */
+  .filter-row {
+    min-height: 44px;
+  }
+
+  #filter-slider {
+    height: 28px;
+  }
+
+  #filter-value {
+    font-size: 15px;
+  }
+
+  .toggle-row {
+    min-height: 44px;
+    margin-top: 0;
+  }
+
+  .toggle-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  .toggle-row label,
+  .legend-doctors,
+  .legend-labels {
+    font-size: 13px;
+  }
+
+  /* --- Contrôles MapLibre --- */
+  /* Zoom au pinch : les boutons +/- feraient doublon sous la topbar */
+  .maplibregl-ctrl-top-right {
+    display: none;
+  }
+
+  /* Attribution et échelle remontées au-dessus du sheet replié */
+  .maplibregl-ctrl-bottom-right,
+  .maplibregl-ctrl-bottom-left {
+    bottom: 132px;
+  }
+
+  /* --- Popup en feuille basse plutôt qu'en bulle ancrée --- */
+  /* transform/left/top sont posés en style inline par MapLibre : d'où !important */
+  .maplibregl-popup {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100%;
+    max-width: none !important;
+    transform: none !important;
+    z-index: 30;
+  }
+
+  .maplibregl-popup-tip {
+    display: none !important;
+  }
+
+  .maplibregl-popup-content {
+    border-radius: 16px 16px 0 0;
+    padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+    box-shadow: 0 -3px 16px rgba(0, 0, 0, 0.2);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .maplibregl-popup-close-button {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+
+  .popup-medecin-list {
+    max-height: 38vh;
+  }
 }

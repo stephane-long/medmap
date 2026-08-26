@@ -2,23 +2,44 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
     <title>MedMap — Accessibilité médicale dans la Creuse</title>
   </head>
   <body>
     <div id="map"></div>
 
-    <!-- Titre — haut gauche -->
+    <!-- Barre du haut — mobile uniquement : accueille la recherche + bouton info -->
+    <div id="mobile-topbar">
+      <button type="button" id="info-btn" aria-label="À propos de cette carte">i</button>
+    </div>
+
+    <!-- Titre — haut gauche sur desktop, modale au tap sur ⓘ en mobile -->
     <div class="panel" id="title-panel">
+      <button type="button" id="info-close" aria-label="Fermer">&times;</button>
       <h1>Combien de temps pour aller chez le (plus proche) médecin&nbsp;?</h1>
       <p>Cliquez sur une zone pour connaître le temps de trajet en voiture.</p>
       <p class="coverage">Couverture actuelle : Creuse (23)<br>Source : répertoire RPPS (Agence du numérique en santé)</p>
     </div>
+    <div id="info-backdrop"></div>
 
-    <!-- Contrôles — bas gauche -->
+    <!-- Contrôles — bas gauche sur desktop, bottom sheet repliable en mobile -->
     <div class="panel" id="control-panel">
 
-      <!-- Recherche -->
+      <!-- Poignée — mobile uniquement -->
+      <button
+        type="button"
+        id="sheet-handle"
+        aria-expanded="false"
+        aria-controls="sheet-details"
+        aria-label="Déplier les filtres"
+      >
+        <span class="sheet-handle-bar"></span>
+      </button>
+
+      <!-- Recherche (déplacée dans #mobile-topbar sous 768px, voir main.js) -->
       <div id="search-wrapper">
         <input
           id="search-input"
@@ -29,9 +50,9 @@
         <ul id="search-results" class="hidden"></ul>
       </div>
 
-      <hr class="panel-divider" />
+      <hr class="panel-divider" id="search-divider" />
 
-      <!-- Légende -->
+      <!-- Légende — reste visible même sheet replié -->
       <div class="legend-title">Temps de trajet</div>
       <div class="legend-gradient"></div>
       <div class="legend-labels">
@@ -49,17 +70,20 @@
         <span>Médecin(s) — taille selon le nombre</span>
       </div>
 
-      <hr class="panel-divider" />
+      <!-- Repliable en mobile, toujours affiché en desktop -->
+      <div id="sheet-details">
+        <hr class="panel-divider" />
 
-      <!-- Filtre -->
-      <label class="section-label" for="filter-slider">Filtrer les zones</label>
-      <div class="filter-row">
-        <input id="filter-slider" type="range" min="0" max="60" step="5" value="0" />
-        <span id="filter-value">Toutes</span>
-      </div>
-      <div class="toggle-row">
-        <input type="checkbox" id="toggle-praticiens" checked />
-        <label for="toggle-praticiens">Afficher les médecins</label>
+        <!-- Filtre -->
+        <label class="section-label" for="filter-slider">Filtrer les zones</label>
+        <div class="filter-row">
+          <input id="filter-slider" type="range" min="0" max="60" step="5" value="0" />
+          <span id="filter-value">Toutes</span>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="toggle-praticiens" checked />
+          <label for="toggle-praticiens">Afficher les médecins</label>
+        </div>
       </div>
 
     </div>
