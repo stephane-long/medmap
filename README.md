@@ -36,7 +36,12 @@ La carte répond à une question précise et étroite : **« en partant d'ici, c
 
 **Aucune pondération par la population ou la patientèle.** L'indicateur traite de la même façon un cabinet isolé et un pôle de santé de six médecins. L'indicateur de référence sur le sujet, l'**APL** (Accessibilité Potentielle Localisée, publié par la DREES), croise offre, demande et distance — il est méthodologiquement bien plus solide que ce qui est calculé ici.
 
-**Effet de bord aux frontières du département.** Les praticiens sont filtrés sur les codes postaux de la Creuse, et le graphe routier OSRM est construit sur le seul extrait OSM du département. Un habitant proche d'une limite départementale peut donc se voir attribuer un temps de trajet surestimé, alors qu'un médecin plus proche existe côté Indre, Cher, Allier, Puy-de-Dôme, Corrèze ou Haute-Vienne.
+**Effet de bord aux frontières du département.** C'est la seule limite de cette liste qui produit des valeurs *fausses* plutôt qu'incomplètes. Elle recouvre deux mécanismes distincts :
+
+- **Le jeu de praticiens s'arrête à la frontière.** Les cabinets sont filtrés sur les codes postaux commençant par `23`. Un habitant du nord de la Creuse dont le généraliste le plus proche exerce dans l'Indre se voit donc attribuer un médecin creusois plus lointain. C'est le mécanisme dominant, responsable de la frange orange visible au nord de la carte.
+- **Le graphe routier s'arrête aussi à la frontière.** L'extrait OSM est découpé sur le contour du département : un itinéraire entre deux points creusois qui emprunterait normalement quelques kilomètres de route en Haute-Vienne n'est pas calculable, et OSRM impose un détour par l'intérieur. L'effet est réel mais modéré — aucun des 8 239 hexagones n'est injoignable, le réseau reste connexe.
+
+Ces deux mécanismes ne se corrigent pas indépendamment : élargir le jeu de praticiens sans élargir l'extrait OSM produirait des temps faux *silencieusement*, OSRM rattachant chaque cabinet extérieur au segment de route le plus proche à l'intérieur de son extrait.
 
 **Conditions de circulation théoriques.** OSRM calcule sur des vitesses libres, sans trafic, sans météo, sans saisonnalité, et sans tenir compte de l'état réel des routes secondaires.
 
@@ -44,12 +49,22 @@ La carte répond à une question précise et étroite : **« en partant d'ici, c
 
 ## Pistes d'approfondissement
 
+### Correctif prioritaire : supprimer l'effet de bord
+
+Avant tout enrichissement, c'est la justesse de l'indicateur existant qu'il faut traiter — les autres limites rendent la carte incomplète, celle-ci la rend inexacte sur sa périphérie. La marche à suivre :
+
+1. **Élargir le graphe routier.** La Creuse touche six départements répartis sur trois régions (Indre, Cher, Allier, Puy-de-Dôme, Corrèze, Haute-Vienne) : aucun extrait régional tout fait ne les couvre. La voie propre est de partir de l'extrait France et de découper avec `osmium extract` sur le contour de la Creuse bufferisé d'environ 40 km — au-delà du pire temps de trajet observé (34 min).
+2. **Élargir le jeu de praticiens** aux sept codes départementaux dans `import_praticiens.ipynb`, puis relancer le géocodage.
+3. **Rejouer les étapes 3 à 5.** La grille H3 est inchangée : elle continue de ne couvrir que la Creuse, seul le jeu de destinations s'élargit. La limite des 50 praticiens les plus proches de `03_compute_matrix.py` reste valable, sa sélection étant géométrique.
+4. **Afficher les cabinets limitrophes** sur la carte — sinon un popup annoncerait un médecin sans point visible.
+
+### Enrichissements
+
 Par ordre d'intérêt journalistique décroissant :
 
 - **Croiser avec la démographie** — superposer la population par tranche d'âge permettrait de passer d'une carte de surfaces à une carte de personnes concernées, et de chiffrer combien d'habitants vivent à plus de 20 minutes d'un médecin.
 - **Intégrer l'âge des praticiens** pour projeter les départs en retraite et cartographier non pas la situation actuelle, mais celle qui s'annonce.
 - **Ajouter les transports en commun** (données GTFS) afin de traiter la limite principale décrite ci-dessus.
-- **Élargir aux départements limitrophes** pour supprimer l'effet de bord.
 - **Comparer plusieurs départements** — la migration Essonne → Creuse a été faite précisément pour vérifier que le pipeline est transposable.
 
 ## Structure du repo
