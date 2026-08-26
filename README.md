@@ -1,6 +1,18 @@
 # MedMap
 
+### 🗺️ [Voir la carte en ligne → medmap.stephanelong.fr](https://medmap.stephanelong.fr)
+
 Cartographie de l'accessibilité aux médecins généralistes dans la **Creuse (23)**. Le projet calcule, pour chaque hexagone d'une grille H3 couvrant le département, le temps de trajet en voiture jusqu'au généraliste le plus proche, et restitue le résultat sur une carte interactive.
+
+![La Creuse vue en entier : grille hexagonale colorée du vert (médecin proche) au rouge (éloigné), cabinets en bleu, panneau de légende et de filtres à gauche, popup indiquant 13 minutes de trajet](docs/medmap_desktop.jpg)
+
+<p align="center">
+  <img src="docs/medmap1.jpg" alt="Interface mobile : panneau de contrôle déplié en bas de l'écran avec la légende, le filtre et l'affichage des médecins" width="45%">
+  &nbsp;&nbsp;
+  <img src="docs/medmap2.jpg" alt="Interface mobile : au tap sur une zone, une feuille basse indique 11 minutes en voiture, le nom du médecin le plus proche et l'adresse de son cabinet" width="45%">
+</p>
+
+<p align="center"><em>La même carte sur mobile : panneau de contrôle repliable, et détail au tap sur une zone.</em></p>
 
 > **Projet de démonstration.** MedMap est un exercice personnel de cartographie web et de traitement de données géospatiales, réalisé de bout en bout : collecte, géocodage, calcul d'itinéraires, publication d'une carte interactive. Ce n'est **pas un service destiné au public** ni un outil d'aide à la décision : les données ne sont pas mises à jour automatiquement, et l'indicateur produit est volontairement simple (voir *[Ce que la carte montre — et ce qu'elle ne montre pas](#ce-que-la-carte-montre--et-ce-quelle-ne-montre-pas)*). L'objectif est de démontrer la chaîne technique et la démarche, pas de mesurer l'accès aux soins en Creuse avec la rigueur qu'exigerait une publication.
 
